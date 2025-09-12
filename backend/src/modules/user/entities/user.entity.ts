@@ -58,4 +58,5 @@ export class UserEntity {
   })
   @DeleteDateColumn({ nullable: true })
   deletedAt?: Date;
+
 }
