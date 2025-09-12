@@ -1,7 +1,7 @@
-import { Body, Controller, HttpStatus, Post, UseGuards } from '@nestjs/common';
-import { UserService } from './user.service';
-import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { Body, Controller, HttpStatus, Post } from '@nestjs/common';
+import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { CreateUserDto } from './dto';
+import { UserService } from './user.service';
 
 @Controller('user')
 export class UserController {

@@ -8,11 +8,14 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy, RefreshJwtStrategy } from './strategy';
 import { BcryptService } from 'src/common/services';
+import { PassportModule } from '@nestjs/passport';
+import { JwtRefreshAuthGuard } from 'src/common/guards';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forFeature([UserEntity]),
+    PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -26,6 +29,12 @@ import { BcryptService } from 'src/common/services';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, RefreshJwtStrategy, BcryptService],
+  providers: [
+    AuthService,
+    JwtStrategy,
+    RefreshJwtStrategy,
+    BcryptService,
+    JwtRefreshAuthGuard,
+  ],
 })
 export class AuthModule {}
