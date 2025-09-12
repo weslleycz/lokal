@@ -33,6 +33,18 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
+      ],
+      "expo-secure-store",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "enableBackup": true
+          },
+          "ios": {
+            "faceIDPermission": "Allow $(PRODUCT_NAME) to access your Face ID biometric data."
+          }
+        }
       ]
     ],
     "experiments": {
