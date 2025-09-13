@@ -19,7 +19,7 @@ export default function SignupScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
-    const router = useRouter();
+  const router = useRouter();
 
   const handleSignup = () => {
     setLoading(true);

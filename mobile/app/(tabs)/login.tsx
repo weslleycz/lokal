@@ -1,3 +1,4 @@
+import { useAuth } from "@/hooks/useAuth";
 import { theme } from "@/theme";
 import { Button, Icon, Input } from "@rneui/base";
 import { Image } from "expo-image";
@@ -16,17 +17,30 @@ export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>(
+    {}
+  );
   const router = useRouter();
 
-  const handleLogin = () => {
-    setLoading(true);
-    console.log("Email:", email);
-    console.log("Password:", password);
-    setTimeout(() => {
-      setLoading(false);
-    }, 2000);
+  const { login, iseAuth, loading, loginSchema } = useAuth();
+
+  const handleLogin = async () => {
+    const result = loginSchema.safeParse({ email, password });
+    if (!result.success) {
+      const fieldErrors: Record<string, string> = {};
+      result.error.issues.forEach((issue) => {
+        const field = issue.path[0] as string;
+        fieldErrors[field] = issue.message;
+      });
+      setErrors(fieldErrors);
+      return;
+    }
+
+    setErrors({});
+    await login({ email, password });
+    if (iseAuth) {
+      router.replace("/");
+    }
   };
 
   return (
@@ -38,6 +52,7 @@ export default function LoginScreen() {
         <Image
           source={require("../../assets/images/logo.svg")}
           style={styles.logo}
+          contentFit="contain"
         />
 
         <View style={styles.header}>
@@ -50,11 +65,13 @@ export default function LoginScreen() {
             placeholder="Email"
             value={email}
             onChangeText={setEmail}
+            onFocus={() => setErrors((prev) => ({ ...prev, email: undefined }))}
             keyboardType="email-address"
             autoCapitalize="none"
             containerStyle={styles.fullWidthInput}
             inputContainerStyle={styles.inputContainer}
             inputStyle={styles.inputText}
+            errorMessage={errors.email}
             leftIcon={
               <Icon
                 name="mail"
@@ -68,10 +85,14 @@ export default function LoginScreen() {
             placeholder="Senha"
             value={password}
             onChangeText={setPassword}
+            onFocus={() =>
+              setErrors((prev) => ({ ...prev, password: undefined }))
+            }
             secureTextEntry={!showPassword}
             containerStyle={styles.fullWidthInput}
             inputContainerStyle={styles.inputContainer}
             inputStyle={styles.inputText}
+            errorMessage={errors.password}
             leftIcon={
               <Icon
                 name="lock"
@@ -127,7 +148,6 @@ const styles = StyleSheet.create({
   logo: {
     width: 180,
     height: 120,
-    resizeMode: "contain",
     alignSelf: "center",
     marginBottom: 32,
   },

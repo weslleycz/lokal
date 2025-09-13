@@ -10,10 +10,9 @@ import { AuthModule } from './modules/auth/auth.module';
 @Module({
   imports: [
     ConfigModule.forRoot(),
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     TypeOrmModule.forRoot(AppDataSource.options as any),
     UserModule,
-    AuthModule, // 👈 cast para evitar ESLint
+    AuthModule, 
   ],
   controllers: [AppController],
   providers: [AppService],
