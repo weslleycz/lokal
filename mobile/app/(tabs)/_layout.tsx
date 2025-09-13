@@ -6,7 +6,8 @@ import TabBarBackground from "@/components/ui/TabBarBackground";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function TabLayout() {
-  const { iseAuth } = useAuth();
+  const { iseAuth,loading } = useAuth();
+  if (loading) return null;
 
   return (
     <>
@@ -20,7 +21,7 @@ export default function TabLayout() {
       >
         <Tabs.Protected guard={iseAuth}>
           <Tabs.Screen
-            name="index"
+            name="home"
             options={{
               title: "Home",
             }}

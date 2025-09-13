@@ -1,8 +1,9 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useSecureStorage } from "./useSecureStorage";
 import { api } from "@/services/api";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "expo-router";
 import Toast from "react-native-toast-message";
 import z from "zod";
+import { useSecureStorage } from "./useSecureStorage";
 
 interface User {
   id: string;
@@ -24,6 +25,7 @@ export function useAuth() {
   const accessTokenStorage = useSecureStorage<string>("accessToken");
   const refreshTokenStorage = useSecureStorage<string>("refreshToken");
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   const loginMutation = useMutation<
     User,
@@ -39,7 +41,7 @@ export function useAuth() {
       await refreshTokenStorage.save(data.refreshToken);
       return data.user;
     },
-    onError: (error) => {
+    onError: () => {
       Toast.show({
         type: "error",
         text1: "Erro ao fazer login",
@@ -47,11 +49,7 @@ export function useAuth() {
       });
     },
     onSuccess: () => {
-      Toast.show({
-        type: "success",
-        text1: "Login realizado!",
-        text2: "Bem-vindo de volta 👋",
-      });
+      router.replace("/home");
     },
   });
 
@@ -59,7 +57,15 @@ export function useAuth() {
     await accessTokenStorage.remove();
     await refreshTokenStorage.remove();
     queryClient.clear();
+    router.replace("/login");
   };
+
+  const iseAuth = !!accessTokenStorage.value && !!refreshTokenStorage.value;
+
+  const loading =
+    loginMutation.isPending ||
+    accessTokenStorage.loading ||
+    refreshTokenStorage.loading;
 
   return {
     accessToken: accessTokenStorage.value,
@@ -67,8 +73,8 @@ export function useAuth() {
     login: loginMutation.mutateAsync,
     logout,
     error: loginMutation.error,
-    iseAuth: !!accessTokenStorage.value && !!refreshTokenStorage.value,
-    loading: loginMutation.isPending,
+    iseAuth,
+    loading,
     loginSchema,
   };
 }

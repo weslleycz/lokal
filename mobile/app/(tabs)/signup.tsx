@@ -1,7 +1,9 @@
+import { useSignup } from "@/hooks/useSignup";
 import { theme } from "@/theme";
 import { Button, Icon, Input } from "@rneui/base";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
+import { TextInputMask } from "react-native-masked-text";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -17,19 +19,32 @@ export default function SignupScreen() {
   const [password, setPassword] = useState("");
   const [phone, setPhone] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<{
+    name?: string;
+    email?: string;
+    password?: string;
+    phone?: string;
+  }>({});
+
+  const { signup, loading, signupSchema } = useSignup();
 
   const router = useRouter();
 
-  const handleSignup = () => {
-    setLoading(true);
-    console.log("Name:", name);
-    console.log("Email:", email);
-    console.log("Password:", password);
-    console.log("Phone:", phone);
-    setTimeout(() => {
-      setLoading(false);
-    }, 2000);
+  const handleSignup = async () => {
+    const result = signupSchema.safeParse({ name, email, password, phone });
+
+    if (!result.success) {
+      const fieldErrors: Record<string, string> = {};
+      result.error.issues.forEach((issue) => {
+        const field = issue.path[0] as string;
+        fieldErrors[field] = issue.message;
+      });
+      setErrors(fieldErrors);
+      return;
+    }
+
+    setErrors({});
+    await signup({ name, email, password, phone });
   };
 
   return (
@@ -51,6 +66,8 @@ export default function SignupScreen() {
             containerStyle={styles.fullWidthInput}
             inputContainerStyle={styles.inputContainer}
             inputStyle={styles.inputText}
+            onFocus={() => setErrors((prev) => ({ ...prev, name: undefined }))}
+            errorMessage={errors.name}
             leftIcon={
               <Icon
                 name="user"
@@ -69,6 +86,8 @@ export default function SignupScreen() {
             containerStyle={styles.fullWidthInput}
             inputContainerStyle={styles.inputContainer}
             inputStyle={styles.inputText}
+            onFocus={() => setErrors((prev) => ({ ...prev, email: undefined }))}
+            errorMessage={errors.email}
             leftIcon={
               <Icon
                 name="mail"
@@ -86,6 +105,10 @@ export default function SignupScreen() {
             containerStyle={styles.fullWidthInput}
             inputContainerStyle={styles.inputContainer}
             inputStyle={styles.inputText}
+            onFocus={() =>
+              setErrors((prev) => ({ ...prev, password: undefined }))
+            }
+            errorMessage={errors.password}
             leftIcon={
               <Icon
                 name="lock"
@@ -111,6 +134,8 @@ export default function SignupScreen() {
             containerStyle={styles.fullWidthInput}
             inputContainerStyle={styles.inputContainer}
             inputStyle={styles.inputText}
+            onFocus={() => setErrors((prev) => ({ ...prev, phone: undefined }))}
+            errorMessage={errors.phone}
             leftIcon={
               <Icon
                 name="phone"
@@ -118,6 +143,13 @@ export default function SignupScreen() {
                 color={theme.lightColors?.grey4}
               />
             }
+            InputComponent={TextInputMask as any}
+            type={"cel-phone" as any}
+            options={{
+              maskType: "BRL",
+              withDDD: true,
+              dddMask: "(99) ",
+            }}
           />
 
           <Button

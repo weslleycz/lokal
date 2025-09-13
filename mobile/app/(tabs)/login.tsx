@@ -22,7 +22,7 @@ export default function LoginScreen() {
   );
   const router = useRouter();
 
-  const { login, iseAuth, loading, loginSchema } = useAuth();
+  const { login, loading, loginSchema } = useAuth();
 
   const handleLogin = async () => {
     const result = loginSchema.safeParse({ email, password });
@@ -38,9 +38,6 @@ export default function LoginScreen() {
 
     setErrors({});
     await login({ email, password });
-    if (iseAuth) {
-      router.replace("/");
-    }
   };
 
   return (
