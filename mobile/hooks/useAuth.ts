@@ -39,6 +39,7 @@ export function useAuth() {
       });
       await accessTokenStorage.save(data.accessToken);
       await refreshTokenStorage.save(data.refreshToken);
+ 
       return data.user;
     },
     onError: () => {
@@ -47,9 +48,6 @@ export function useAuth() {
         text1: "Erro ao fazer login",
         text2: "Verifique suas credenciais",
       });
-    },
-    onSuccess: () => {
-      router.replace("/home");
     },
   });
 
@@ -60,7 +58,11 @@ export function useAuth() {
     router.replace("/login");
   };
 
-  const iseAuth = !!accessTokenStorage.value && !!refreshTokenStorage.value;
+  const isAuth =
+    !accessTokenStorage.loading &&
+    !refreshTokenStorage.loading &&
+    !!accessTokenStorage.value &&
+    !!refreshTokenStorage.value;
 
   const loading =
     loginMutation.isPending ||
@@ -73,7 +75,7 @@ export function useAuth() {
     login: loginMutation.mutateAsync,
     logout,
     error: loginMutation.error,
-    iseAuth,
+    isAuth,
     loading,
     loginSchema,
   };

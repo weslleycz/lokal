@@ -3,7 +3,7 @@ import { theme } from "@/theme";
 import { Button, Icon, Input } from "@rneui/base";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -22,7 +22,13 @@ export default function LoginScreen() {
   );
   const router = useRouter();
 
-  const { login, loading, loginSchema } = useAuth();
+  const { login, loading, loginSchema, isAuth } = useAuth();
+
+  useEffect(() => {
+    if (isAuth) {
+      router.replace("/home");
+    }
+  }, [isAuth]);
 
   const handleLogin = async () => {
     const result = loginSchema.safeParse({ email, password });
@@ -38,6 +44,10 @@ export default function LoginScreen() {
 
     setErrors({});
     await login({ email, password });
+
+    if (isAuth) {
+      router.replace("/home");
+    }
   };
 
   return (

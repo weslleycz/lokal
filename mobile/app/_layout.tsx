@@ -38,7 +38,8 @@ export default function RootLayout() {
         <SafeAreaView style={{ backgroundColor: theme.lightColors?.primary }} edges={['top']} />
 
         <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} 
+          />
           <Stack.Screen name="+not-found" />
         </Stack>
 

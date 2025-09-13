@@ -11,8 +11,6 @@ export function PrivateRoute({ children }: PrivateRouteProps) {
   const router = useRouter();
 
   useEffect(() => {
-    console.log(3434343434);
-    
     if (!loading && !accessToken) {
       router.replace("/login");
     }
