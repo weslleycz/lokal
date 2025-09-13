@@ -5,6 +5,7 @@ import { apiReference } from '@scalar/nestjs-api-reference';
 import passport from 'passport';
 import { AppModule } from './app.module';
 import { UserEntity } from './modules/user/entities';
+import { PlantEntity } from './modules/plant/entities';
 
 const bootstrap = async () => {
   const app = await NestFactory.create(AppModule);
@@ -27,7 +28,7 @@ const bootstrap = async () => {
     .build();
 
   const document = SwaggerModule.createDocument(app, config, {
-    extraModels: [UserEntity],
+    extraModels: [UserEntity, PlantEntity],
   });
   SwaggerModule.setup('api', app, document);
 

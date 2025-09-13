@@ -1,8 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { PlantEntity } from '../../plant/entities';
 import {
   Column,
   DeleteDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -59,4 +61,6 @@ export class UserEntity {
   @DeleteDateColumn({ nullable: true })
   deletedAt?: Date;
 
+  @OneToMany(() => PlantEntity, (plant) => plant.user)
+  plants: PlantEntity[];
 }

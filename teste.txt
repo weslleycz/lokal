@@ -1,1 +1,2 @@
-yarn migration:generate ./src/database/migrations/UserEntity
+yarn typeorm migration:generate ./src/database/migrations/PlantIdUuid -d ./src/database/data-source.ts
+yarn typeorm migration:run -d ./src/database/data-source.ts
