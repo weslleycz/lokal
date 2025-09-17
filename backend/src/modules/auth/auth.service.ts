@@ -138,7 +138,7 @@ export class AuthService {
 
     user.password = hashedPassword;
     await this.userRepository.save(user);
-    
+
     await this.redisClient.del(code);
 
     return { message: 'Senha redefinida com sucesso' };

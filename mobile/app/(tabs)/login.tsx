@@ -117,7 +117,7 @@ export default function LoginScreen() {
             }
           />
 
-          <Pressable>
+          <Pressable onPress={() => router.replace("/forgotPassword")}>
             <Text style={styles.forgotPassword}>Esqueceu a senha?</Text>
           </Pressable>
 
