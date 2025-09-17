@@ -7,7 +7,7 @@ import { UserEntity } from '../user/entities';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy, RefreshJwtStrategy } from './strategy';
-import { BcryptService } from 'src/common/services';
+import { BcryptService, EmailService, SendMailService } from 'src/common/services';
 import { PassportModule } from '@nestjs/passport';
 import { JwtRefreshAuthGuard } from 'src/common/guards';
 
@@ -35,6 +35,8 @@ import { JwtRefreshAuthGuard } from 'src/common/guards';
     RefreshJwtStrategy,
     BcryptService,
     JwtRefreshAuthGuard,
+    EmailService,
+    SendMailService
   ],
 })
 export class AuthModule {}

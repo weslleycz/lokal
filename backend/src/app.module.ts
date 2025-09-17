@@ -1,20 +1,23 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AppDataSource } from './database/data-source';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { UserModule } from './modules/user/user.module';
+import { AppDataSource } from './database/data-source';
 import { AuthModule } from './modules/auth/auth.module';
 import { PlantModule } from './modules/plant/plant.module';
+import { UserModule } from './modules/user/user.module';
+import { RedisModule } from './common/redis/redis.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
+    ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRoot(AppDataSource.options as any),
+    RedisModule,
     UserModule,
     AuthModule,
-    PlantModule, 
+    PlantModule,
   ],
   controllers: [AppController],
   providers: [AppService],

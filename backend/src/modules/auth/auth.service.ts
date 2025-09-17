@@ -1,13 +1,21 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
+import Redis from 'ioredis';
+import { customAlphabet } from 'nanoid';
+import { JwtPayload } from 'src/common/@types';
+import { getAuthConfig } from 'src/common/config';
+import { BcryptService, SendMailService } from 'src/common/services';
 import { Repository } from 'typeorm';
 import { UserEntity } from '../user/entities';
-import { getAuthConfig } from 'src/common/config';
-import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
-import { BcryptService } from 'src/common/services';
 import { LoginDto, LoginResponseDto } from './dto';
-import { JwtPayload } from 'src/common/@types';
 
 @Injectable()
 export class AuthService {
@@ -17,6 +25,8 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly bcryptService: BcryptService,
+    @Inject('REDIS_CLIENT') private readonly redisClient: Redis,
+    private readonly sendMailService: SendMailService,
   ) {}
 
   async login({ email, password }: LoginDto) {
@@ -62,7 +72,7 @@ export class AuthService {
       },
     };
   }
-  
+
   async refreshTokens(
     userId: string,
     email: string,
@@ -85,5 +95,52 @@ export class AuthService {
       refreshToken,
       user: { id: userId, email },
     };
+  }
+
+  async forgotPassword(email: string) {
+    const user = await this.userRepository.findOneBy({
+      email,
+    });
+    if (!user) {
+      throw new NotFoundException('Usuário não encontrado');
+    }
+    const nanoidNumbers = customAlphabet('0123456789', 6);
+
+    const code = nanoidNumbers();
+
+    await this.redisClient.set(code, JSON.stringify(user.id), 'EX', 60 * 5);
+
+    await this.sendMailService.send({
+      to: user.email,
+      subject: 'Redefinição de Senha',
+      template: 'reset-password.pug',
+      parametros: {
+        name: user.name,
+        code,
+      },
+    });
+  }
+
+  async resetPassword(code: string, newPassword: string) {
+    const userId = await this.redisClient.get(code);
+    if (!userId) {
+      throw new BadRequestException('Código inválido ou expirado');
+    }
+
+    const user = await this.userRepository.findOneBy({
+      id: JSON.parse(userId),
+    });
+    if (!user) {
+      throw new NotFoundException('Usuário não encontrado');
+    }
+
+    const hashedPassword = await this.bcryptService.hashPassword(newPassword);
+
+    user.password = hashedPassword;
+    await this.userRepository.save(user);
+    
+    await this.redisClient.del(code);
+
+    return { message: 'Senha redefinida com sucesso' };
   }
 }

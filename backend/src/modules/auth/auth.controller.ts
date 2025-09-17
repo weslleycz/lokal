@@ -7,7 +7,12 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { LoginDto, LoginResponseDto } from './dto';
+import {
+  ForgotPasswordDto,
+  LoginDto,
+  LoginResponseDto,
+  ResetPasswordDto,
+} from './dto';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -56,5 +61,47 @@ export class AuthController {
   })
   async refresh(@Req() req: RequestWithUser): Promise<LoginResponseDto> {
     return this.authService.refreshTokens(req.user.userId, req.user.email);
+  }
+
+  @Post('forgot-password')
+  @ApiOperation({ summary: 'Realiza o processo de esqueci minha senha' })
+  @ApiBody({ type: ForgotPasswordDto })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Processo concluído com sucesso',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Usuário não encontrado',
+  })
+  async forgotPassword(@Body() dto: ForgotPasswordDto) {
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Código enviado com sucesso',
+      data: await this.authService.forgotPassword(dto.email),
+    };
+  }
+
+  @Post('reset-password')
+  @ApiOperation({ summary: 'Redefine a senha do usuário usando código' })
+  @ApiBody({ type: ResetPasswordDto })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Senha redefinida com sucesso',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Código inválido ou expirado',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Usuário não encontrado',
+  })
+  async resetPassword(@Body() dto: ResetPasswordDto) {
+    await this.authService.resetPassword(dto.code, dto.newPassword);
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Senha redefinida com sucesso',
+    };
   }
 }
