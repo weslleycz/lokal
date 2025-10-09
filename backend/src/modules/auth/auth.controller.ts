@@ -98,10 +98,6 @@ export class AuthController {
     description: 'Usuário não encontrado',
   })
   async resetPassword(@Body() dto: ResetPasswordDto) {
-    await this.authService.resetPassword(dto.code, dto.newPassword);
-    return {
-      statusCode: HttpStatus.OK,
-      message: 'Senha redefinida com sucesso',
-    };
+   return await this.authService.resetPassword(dto.code, dto.newPassword);
   }
 }

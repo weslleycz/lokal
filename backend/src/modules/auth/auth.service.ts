@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  HttpStatus,
   Inject,
   Injectable,
   NotFoundException,
@@ -141,6 +142,9 @@ export class AuthService {
 
     await this.redisClient.del(code);
 
-    return { message: 'Senha redefinida com sucesso' };
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Senha redefinida com sucesso',
+    }
   }
 }

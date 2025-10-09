@@ -38,5 +38,6 @@ import { JwtRefreshAuthGuard } from 'src/common/guards';
     EmailService,
     SendMailService
   ],
+   exports: [AuthService],
 })
 export class AuthModule {}

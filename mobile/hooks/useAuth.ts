@@ -38,6 +38,8 @@ export function useAuth() {
 
   const loginMutation = useMutation<User, Error, { email: string; password: string }>({
     mutationFn: async ({ email, password }) => {
+      console.log(4233434343434);
+      
       const { data } = await api.post<LoginResponse>("/auth", { email, password });
       await accessTokenStorage.save(data.accessToken);
       await refreshTokenStorage.save(data.refreshToken);
